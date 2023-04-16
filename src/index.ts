@@ -1,9 +1,13 @@
 import express, {Request, Response} from 'express'
+import bodyParser from "body-parser"
 const app = express()
 const port = process.env.PORT || 3000
 
 const products = [{id: 1, title: 'tomato'}, {id: 2, title: 'orange'}]
 const addresses = [{id: 1, value: 'street 1'}, {id: 2, value: 'street 20'}]
+
+const parserMiddleware = bodyParser({})
+app.use(parserMiddleware)
 
 app.get('/', (req: Request, res: Response) => {
     let helloMessage = 'Hello :)';
@@ -51,6 +55,16 @@ app.delete('/products/:id', (req: Request, res: Response) => {
     }
     res.send(404)
 })
+
+app.post('/products', (req: Request, res: Response) => {
+    const newProduct = {
+        id: Number(new Date()),
+        title: req.body.title
+    }
+    products.push(newProduct)
+    res.status(201).send(newProduct)
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

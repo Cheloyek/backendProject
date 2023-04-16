@@ -4,10 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const body_parser_1 = __importDefault(require("body-parser"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 const products = [{ id: 1, title: 'tomato' }, { id: 2, title: 'orange' }];
 const addresses = [{ id: 1, value: 'street 1' }, { id: 2, value: 'street 20' }];
+const parserMiddleware = (0, body_parser_1.default)({});
+app.use(parserMiddleware);
 app.get('/', (req, res) => {
     let helloMessage = 'Hello :)';
     res.send(helloMessage);
@@ -51,6 +54,14 @@ app.delete('/products/:id', (req, res) => {
         }
     }
     res.send(404);
+});
+app.post('/products', (req, res) => {
+    const newProduct = {
+        id: Number(new Date()),
+        title: req.body.title
+    };
+    products.push(newProduct);
+    res.status(201).send(newProduct);
 });
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
