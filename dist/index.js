@@ -42,6 +42,16 @@ app.get('/addresses/:id', (req, res) => {
         res.send(404);
     }
 });
+app.delete('/products/:id', (req, res) => {
+    for (let i = 0; i < products.length; i++) {
+        if (+req.params.id === products[i].id) {
+            products.splice(i, 1);
+            res.send(204);
+            return;
+        }
+    }
+    res.send(404);
+});
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
