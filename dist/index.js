@@ -13,6 +13,21 @@ const port = process.env.PORT || 3000;
 // const addresses = [{id: 1, value: 'street 1'}, {id: 2, value: 'street 20'}]
 const parserMiddleware = (0, body_parser_1.default)({});
 app.use(parserMiddleware);
+// const guardMiddleware = (req: Request, res: Response, next: NextFunction) => {
+//     if (req.query.token === '777') {
+//         next()
+//     } else {
+//         res.send(401)
+//     }
+// }
+let requestCounter = 0;
+const requestCounterMiddleware = (req, res, next) => {
+    requestCounter++;
+    console.log(requestCounter);
+    next();
+};
+// app.use(guardMiddleware)
+app.use(requestCounterMiddleware);
 app.get('/', (req, res) => {
     let helloMessage = 'Hello :)';
     res.send(helloMessage);

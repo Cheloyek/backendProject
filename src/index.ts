@@ -1,7 +1,8 @@
-import express, {Request, Response} from 'express'
+import express, {Request, Response, NextFunction} from 'express'
 import bodyParser from "body-parser"
 import {productsRouter} from "./routes/products-router";
 import {addressesRouter} from "./routes/addresses-router";
+import {log} from "util";
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -10,6 +11,22 @@ const port = process.env.PORT || 3000
 
 const parserMiddleware = bodyParser({})
 app.use(parserMiddleware)
+// const guardMiddleware = (req: Request, res: Response, next: NextFunction) => {
+//     if (req.query.token === '777') {
+//         next()
+//     } else {
+//         res.send(401)
+//     }
+// }
+let requestCounter = 0
+const requestCounterMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    requestCounter++
+    console.log(requestCounter);
+    next()
+}
+// app.use(guardMiddleware)
+app.use(requestCounterMiddleware)
+
 
 app.get('/', (req: Request, res: Response) => {
     let helloMessage = 'Hello :)';
