@@ -1,13 +1,14 @@
 import {Request, Response, Router} from "express";
 import {productsRepository} from "../repositories/products-repository";
 import {body, validationResult} from "express-validator";
+import {validationMiddleware} from "../middlewares/validationMiddleware";
 
 // const products = [{id: 1, title: 'tomato'}, {id: 2, title: 'orange'}]
 
 export const productsRouter = Router({})
 
-productsRouter.get('/', (req: any, res: Response) => {
-    const foundProducts = productsRepository.findProducts(req.query.title?.toString())
+productsRouter.get('/', async (req: any, res: Response) => {
+    const foundProducts = await productsRepository.findProducts(req.query.title?.toString())
         res.send(foundProducts)
 })
 
@@ -19,8 +20,8 @@ productsRouter.get('/', (req: any, res: Response) => {
 //         res.send(404)
 //     }
 // })
-productsRouter.get('/:id', (req: Request, res: Response) => {
-    const product = productsRepository.findProductById(+req.params.id)
+productsRouter.get('/:id', async (req: Request, res: Response) => {
+    const product = await productsRepository.findProductById(+req.params.id)
     if (product) {
         res.send(product)
     } else {
@@ -38,8 +39,8 @@ productsRouter.get('/:id', (req: Request, res: Response) => {
 //     }
 //     res.send(404)
 // })
-productsRouter.delete('/:id', (req: Request, res: Response) => {
-    const isDeleted = productsRepository.deleteProduct(+req.params.id)
+productsRouter.delete('/:id', async (req: Request, res: Response) => {
+    const isDeleted = await productsRepository.deleteProduct(+req.params.id)
     if (isDeleted) {
         res.send(204)
     } else {
@@ -55,14 +56,15 @@ productsRouter.delete('/:id', (req: Request, res: Response) => {
 //     products.push(newProduct)
 //     res.status(201).send(newProduct)
 // })
-productsRouter.post('/',
-    body('title').trim().isLength({min: 6}).withMessage('Title length should be from 6 symbols'),
-    (req: Request, res: Response) => {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array()})
-        }
-    const newProduct = productsRepository.createProduct(req.body.title)
+
+
+let titleValidation = body('title').trim().isLength({min: 6}).withMessage('Title length should be from 6 symbols');
+productsRouter.post('/', titleValidation, validationMiddleware, async (req: Request, res: Response) => {
+        // const errors = validationResult(req)
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({errors: errors.array()})
+        // }
+    const newProduct = await productsRepository.createProduct(req.body.title)
     res.status(201).send(newProduct)
 })
 
@@ -75,10 +77,10 @@ productsRouter.post('/',
 //         res.send(404)
 //     }
 // })
-productsRouter.put('/:id', (req: Request, res: Response) => {
-    const isUpdated = productsRepository.updateProduct(+req.params.id, req.body.title)
+productsRouter.put('/:id', titleValidation, validationMiddleware, async (req: Request, res: Response) => {
+    const isUpdated = await productsRepository.updateProduct(+req.params.id, req.body.title)
     if (isUpdated) {
-        const product = productsRepository.findProductById(+req.params.id)
+        const product = await productsRepository.findProductById(+req.params.id)
         res.status(201).send(product)
     } else {
         res.send(404)
