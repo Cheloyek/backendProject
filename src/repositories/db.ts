@@ -15,3 +15,8 @@ export async function runDb() {
         await client.close()
     }
 }
+
+export type ProductType = {
+    id: number
+    title: string
+}
